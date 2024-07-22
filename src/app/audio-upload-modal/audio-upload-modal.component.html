@@ -1,0 +1,15 @@
+<h2 mat-dialog-title>Select Audio</h2>
+<mat-dialog-content>
+  <div>
+    <label for="audioFile">Upload from your computer:</label>
+    <input type="file" id="audioFile" (change)="onFileSelected($event)" accept="audio/*">
+  </div>
+  <div>
+    <label for="audioUrl">Or provide a URL:</label>
+    <input type="text" id="audioUrl" [(ngModel)]="audioUrl">
+    <button mat-button (click)="onUrlProvided()">Load URL</button>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onCancel()">Cancel</button>
+</mat-dialog-actions>

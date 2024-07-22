@@ -1,0 +1,59 @@
+<div class="navbar">
+  <button class="green-button" (click)="openUploadModal()">Open</button>
+  <div class="dropdown">
+    <button class="dropbtn">Audio Files</button>
+    <div class="dropdown-content">
+      <a *ngFor="let audio of audioList" (click)="loadAudioFromDatabase(audio.audioUrl)">{{ audio.fileName }}</a>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="filename">
+    <h2>{{ currentFileName | truncate:20 }}</h2>
+    <span class="tooltiptext">{{ currentFileName }}</span>
+  </div>
+  <section class="lesson">
+    <div class="subtitles">{{ currentSubtitle }}</div>
+  </section>
+</main>
+
+<div class="audio-controls">
+  <div class="icons-row">
+    <button (click)="toggleRepeat()">Repeat</button>
+    <button (click)="togglePlayAudio()">{{ isPlayingAudio ? 'Pause' : 'Play' }}</button>
+    <button (click)="stopAudio()">Stop</button>
+  </div>
+  <div class="icons-row">
+    <button (click)="togglePlayRecording()">{{ isPlayingRecording ? 'Pause' : 'Play' }}</button>
+    <button (click)="toggleRecording()">{{ isRecording ? 'Stop Recording' : 'Record' }}</button>
+    <button (click)="stopRecording()">Stop</button>
+  </div>
+  <div class="icons-row">
+    <button (click)="previousAudio()">Previous</button>
+    <button (click)="toggleLoopStart()">A</button>
+    <button (click)="toggleLoopEnd()">B</button>
+    <button (click)="nextAudio()">Next</button>
+  </div>
+  <label>
+    Playback Rate:
+    <input type="number" step="0.1" [value]="playbackRate" (change)="updatePlaybackRate($event)">
+    <span>{{ playbackRate }}x</span>
+  </label>
+  <label *ngIf="showLoopStart">
+    Loop Start (A):
+    <input type="number" [value]="loopStart" (change)="updateLoopStart($event)">
+  </label>
+  <label *ngIf="showLoopEnd">
+    Loop End (B):
+    <input type="number" [value]="loopEnd" (change)="updateLoopEnd($event)">
+  </label>
+</div>
+
+<div class="audio-timeline">
+  <div class="current-time">{{ formatTime(currentTime) }}</div>
+  <input type="range" min="0" [max]="duration" [(ngModel)]="currentTime" (change)="onTimeUpdate($event)" class="timeline-slider">
+  <div class="total-time">{{ formatTime(duration) }}</div>
+  <div class="loop-point" *ngIf="showLoopStart" [style.left.%]="(loopStart / duration) * 100" draggable="true" (dragend)="onLoopPointDrag($event, 'start')"></div>
+  <div class="loop-point" *ngIf="showLoopEnd" [style.left.%]="(loopEnd / duration) * 100" draggable="true" (dragend)="onLoopPointDrag($event, 'end')"></div>
+</div>
