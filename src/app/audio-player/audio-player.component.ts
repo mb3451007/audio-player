@@ -175,7 +175,6 @@ export class AudioPlayerComponent implements OnInit {
     this.currentSubtitle = this.audioService.getSubtitleForCurrentTime();
   }
 
- 
   openUploadModal() {
     const dialogRef = this.dialog.open(AudioUploadModalComponent, {
       width: '400px'
@@ -184,29 +183,38 @@ export class AudioPlayerComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
         if (result.type === 'file') {
+          console.log(result, 'this is file from modal');
+
           // Handle file upload
+          const audioSrc = result.audioSrc; // Data URL of the audio file
           const fileName = result.file.name;
-          this.audioService.uploadFile(result.file).then(audioUrl => {
-            this.audioService.addAudioToFirestore(fileName, audioUrl)
-              .then(() => this.loadAudioList())
-              .catch(error => console.error('Error adding audio to Firestore', error));
-          });
+
+          this.audioService.addAudioToFirestore(fileName, audioSrc)
+            .then(() => {
+              this.loadAudioList();
+              console.log('audio File Src added to firestore successfully');
+              
+            })
+            .catch(error => console.error('Error adding audio to Firestore', error));
         } else if (result.type === 'url') {
           const audioUrl = result.url;
-          this.audioService.addAudioToFirestore(result.url, audioUrl)
-            .then(() => this.loadAudioList())
+          this.audioService.addAudioToFirestore(audioUrl, audioUrl)
+            .then(() => {
+              this.loadAudioList();
+              console.log('audio Url added to firestore successfully');
+            })
             .catch(error => console.error('Error adding audio to Firestore', error));
         }
       }
     });
   }
   
-  
   loadAudioFromDatabase(url: string) {
     this.audioService.loadAudioUrl(url);
     this.currentFileName = url;
     this.currentFileSource = url;
   }
+
 
   async onFileSelected(event: any) {
     const file = event.target.files[0];

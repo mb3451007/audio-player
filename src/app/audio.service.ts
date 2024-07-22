@@ -42,6 +42,7 @@ export class AudioService {
     });
   }
 
+ 
   async uploadFile(file: File): Promise<string> {
     const filePath = `audio_files/${file.name}`;
     const fileRef = this.storage.ref(filePath);
@@ -239,7 +240,6 @@ export class AudioService {
       throw new Error('Failed to add audio to Firestore. Please try again.');
     }
   }
-
   getAudios(collectionName: string) {
     return this.firestore.collection(collectionName).valueChanges();
   }
