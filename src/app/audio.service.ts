@@ -23,6 +23,7 @@ export class AudioService {
   private recordingBlob: Blob | null = null;
   private subtitles: Subtitle[] = [];
   private currentSubtitleIndex: number = -1;
+  private firebaseStorageUrl = 'https://firebasestorage.googleapis.com/v0/b/your-storage-bucket/o';
   private audioList: string[] = [
     'assets/audio1.mp3',
     'assets/audio2.mp3',
@@ -31,7 +32,7 @@ export class AudioService {
   private currentAudioIndex: number = 0;
   private isPlaying: boolean = false;
 
-  constructor(private firestore: AngularFirestore) {
+  constructor(private firestore: AngularFirestore,) {
     this.audio.addEventListener('loadedmetadata', () => {
       this.loopEnd = this.audio.duration;
       this.audio.loop = false;

@@ -26,7 +26,7 @@ export class AudioPlayerComponent implements OnInit {
   selectedFile: File | null = null;
   audioList: any[] = [];
   audioSrcs: string | ArrayBuffer | null = null;
-
+  isDropdownVisible = false;
 
   constructor(public audioService: AudioService, public dialog: MatDialog) {
     this.audioService.getAudioElement().addEventListener('timeupdate', () => {
@@ -124,7 +124,17 @@ export class AudioPlayerComponent implements OnInit {
   }
 
   updatePlaybackRate(event: any) {
-    const rate = parseFloat(event.target.value);
+    let rate = parseFloat(event.target.value);
+    if(rate<0.25){
+        rate=0.25;
+    }
+    else if(rate >2){
+        rate=2;
+    }
+    else if(Math.abs(rate -2) <0.5){
+       rate=2
+    }
+    this.playbackRate=rate;
     this.audioService.setPlaybackRate(rate);
   }
 
@@ -228,4 +238,8 @@ export class AudioPlayerComponent implements OnInit {
       }
     }
   }
+   toggleDropdown() {
+    this.isDropdownVisible = !this.isDropdownVisible;
+  }
+
 }

@@ -23,6 +23,7 @@ import { AngularFireModule } from '@angular/fire/compat';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatIconModule } from '@angular/material/icon';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { HttpClientModule } from '@angular/common/http';
 
 
 
@@ -42,13 +43,14 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     MatButtonModule,
     MatInputModule,
     AngularFireAuthModule,
-    AngularFireModule.initializeApp(environment.firebase),
+    AngularFireModule.initializeApp(environment.firebase), 
     AngularFirestoreModule,
     MatIconModule,
     DragDropModule,
     MatTreeModule,
     AngularFireModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    HttpClientModule
   ],
   schemas:[CUSTOM_ELEMENTS_SCHEMA],
   providers: [],
