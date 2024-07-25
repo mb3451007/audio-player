@@ -59,8 +59,8 @@ body {
 .filename h2 {
   margin: 0;
   padding: 10px;
-  background-color: #4CAF50;
-  color: white;
+  /* background-color: #4CAF50; */
+  /* color: white; */
   border-radius: 5px;
   transition: background-color 0.3s ease;
 }
@@ -254,4 +254,21 @@ dropdown {
 
 .dropdown:hover .dropdown-content {
   display: block;
+}
+/*  */
+.text-black {
+  width: 20px;
+  height: 20px;
+  margin-top: 11px;
+  margin-left: 2px;
+  background-color: green !important;
+  color: black; 
+  border-radius: 50%; 
+  font-size: 15px; 
+  font-weight: bold; 
+  line-height: 1; 
+  text-align: center; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
 }
