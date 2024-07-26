@@ -2,13 +2,13 @@
 <mat-dialog-content>
   <div class="form-group">
     <label for="audioFile">Upload from your computer:</label>
-    <input type="file" id="audioFile" (change)="onFileSelected($event)" accept="audio/*" [disabled]="isUrlMode" >
+    <input type="file" id="audioFile" (change)="onFileSelected($event,'audio')" accept="audio/*" [disabled]="isUrlMode" >
   </div>
   <div>
     <label for="subtitleUpload">Upload Subtitle File:</label>
-    <input type="file" id="subtitleUpload" (change)="onSubtitleChange($event)">
+    <input type="file" id="subtitleUpload" (change)="onFileSelected($event,'subtitle')">
   </div>
-  <div>
+  <div> 
     <label for="audioUrl">Or provide a URL:</label>
     <input type="text" id="audioUrl" [(ngModel)]="audioUrl" [disabled]="isFileMode" >
     <button mat-button (click)="onUrlProvided()">Load URL</button>

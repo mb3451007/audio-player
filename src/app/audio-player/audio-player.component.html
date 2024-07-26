@@ -3,8 +3,8 @@
   <button class="green-button" (click)="openUploadModal()">Open</button>
   <div class="dropdown">
     <button class="dropbtn" (click)="toggleDropdown()">Audio Files</button>
-    <div class="dropdown-content" [ngClass]="{'show': toggleDropdown}">
-      <a *ngFor="let audio of audioList" (click)="loadAudioFromDatabase(audio.audioUrl)">{{ audio.fileName | truncate:30 }}</a>
+    <div class="dropdown-content" [ngClass]="{'show': isDropdownVisible}">
+      <a *ngFor="let audio of audioList" (click)="playAudio(audio.audioFile)">{{ audio.key | truncate:30 }}</a>
     </div>
   </div>
   </div>

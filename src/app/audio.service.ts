@@ -3,6 +3,7 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import * as RecordRTC from 'recordrtc';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/storage';
+import { HttpClient } from '@angular/common/http';
 
 interface Subtitle {
   start: number;
@@ -23,7 +24,6 @@ export class AudioService {
   private recordingBlob: Blob | null = null;
   private subtitles: Subtitle[] = [];
   private currentSubtitleIndex: number = -1;
-  private firebaseStorageUrl = 'https://firebasestorage.googleapis.com/v0/b/your-storage-bucket/o';
   private audioList: string[] = [
     'assets/audio1.mp3',
     'assets/audio2.mp3',
@@ -31,8 +31,9 @@ export class AudioService {
   ];
   private currentAudioIndex: number = 0;
   private isPlaying: boolean = false;
-
-  constructor(private firestore: AngularFirestore,) {
+  private backendUrl = 'http://localhost:3000';
+  // private awsUploadUrl = 'https://your-aws-upload-endpoint'; 
+  constructor(private firestore: AngularFirestore , private http:HttpClient) {
     this.audio.addEventListener('loadedmetadata', () => {
       this.loopEnd = this.audio.duration;
       this.audio.loop = false;
@@ -44,24 +45,24 @@ export class AudioService {
   }
 
  
-  async uploadFile(file: File): Promise<string> {
-    const filePath = `audio_files/${file.name}`;
-    const fileRef = this.storage.ref(filePath);
-    const task = fileRef.put(file);
+  // async uploadFile(file: File): Promise<string> {
+  //   const filePath = `audio_files/${file.name}`;
+  //   const fileRef = this.storage.ref(filePath);
+  //   const task = fileRef.put(file);
 
-    return new Promise<string>((resolve, reject) => {
-      task.on(
-        firebase.storage.TaskEvent.STATE_CHANGED,
-        () => {},
-        reject,
-        () => {
-          fileRef.getDownloadURL().then(resolve).catch(reject);
-        }
-      );
-    });
-  }
+  //   return new Promise<string>((resolve, reject) => {
+  //     task.on(
+  //       firebase.storage.TaskEvent.STATE_CHANGED,
+  //       () => {},
+  //       reject,
+  //       () => {
+  //         fileRef.getDownloadURL().then(resolve).catch(reject);
+  //       }
+  //     );
+  //   });
+  // }
 
-  async addAudioToFirestore(fileName: string, audioSrc: string): Promise<void> {
+  async uploadAudio(fileName: string, audioSrc: string): Promise<void> {
     await this.firestore.collection('audio-database').add({
       fileName,
       audioSrc,
@@ -71,8 +72,8 @@ export class AudioService {
 
   async storeRecordingInFirestore(fileName: string): Promise<void> {
     if (this.recordingBlob) {
-      const audioSrc = await this.uploadFile(new File([this.recordingBlob], fileName));
-      await this.addAudioToFirestore(fileName, audioSrc);
+      // const audioSrc = await this.uploadFile(new File([this.recordingBlob], fileName));
+      // await this.addAudioToFirestore(fileName, audioSrc);
     }
   }
 
@@ -241,8 +242,24 @@ export class AudioService {
       throw new Error('Failed to add audio to Firestore. Please try again.');
     }
   }
-  getAudios(collectionName: string) {
-    return this.firestore.collection(collectionName).valueChanges();
+  getAudios() {
+    // return this.http.get(`${this.backendUrl}/files`);
+    return this.http.get(`http://localhost:3000/files`);
+  }
+  
+  uploadFile(audioFile: File, subtitleFile:File): any {
+    const formData = new FormData();
+    formData.append('audio', audioFile);
+    formData.append('subtitle', subtitleFile);
+    return this.http.post<{message:string}>(`${this.backendUrl}/upload`, formData).toPromise()
+    .then((response:any) =>{
+      console.log(response.message);
+      
+    })
+    .catch(error =>{
+      console.log('Error uploading file: ' + error.message);
+      
+    })
   }
 
   getAudioFilesFromDatabase() {
@@ -262,7 +279,6 @@ export class AudioService {
   clearRecording() {
     this.recordingBlob = null;
   }
-
   getCurrentCue(currentTime: number): { text: string } {
     for (let i = 0; i < this.subtitles.length; i++) {
       const subtitle = this.subtitles[i];

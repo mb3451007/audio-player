@@ -9,6 +9,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 export class AudioUploadModalComponent {
   public audioUrl: string = '';
   audioSrc: string | ArrayBuffer | null = null;
+  subtitleSrc: string | ArrayBuffer | null = null;
   audioFile: File | null = null;
   subtitleFile: File | null = null;
   isUrlMode: boolean = false;
@@ -32,19 +33,23 @@ export class AudioUploadModalComponent {
   //     console.warn('No file selected');
   //   }
   // }
-  onFileSelected(event: any) {
+  onFileSelected(event: any, fileType: 'audio' | 'subtitle') {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
-        this.audioSrc = reader.result as string;
-        this.audioFile=file;
+        if(fileType==='audio'){
+           this.audioSrc=reader.result as string;
+           this.audioFile=file;
+        }
+        else if(fileType==='subtitle'){
+          this.subtitleSrc=reader.result as string;
+          this.subtitleFile=file;
+        }
         this.isUrlMode=false;
         this.isFileMode=true;
         this.validateFiles()
-        // console.log(this.audioSrc, 'this is audio data URL for checking');
-        // this.dialogRef.close({ type: 'file', file, audioSrc: this.audioSrc });
       };
       reader.onerror = (error) => {
         console.error('Error reading file:', error);
@@ -55,23 +60,36 @@ export class AudioUploadModalComponent {
   }
   onUrlProvided() {
     this.isUrlMode=true;
+    this.isFileMode=false;
     this.audioFile=null;
     this.subtitleFile=null;
     this.audioSrc=null;
+    this.subtitleSrc=null;
     this.validateFiles();
-    // this.dialogRef.close({ type: 'url', url: this.audioUrl });
+    
   }
 
   onCancel() {
     this.dialogRef.close(null);
   }
-  onSubtitleChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length) {
-      this.subtitleFile = input.files[0];
-      this.validateFiles()
-    }
-  }
+  // onSubtitleChange(event: any) {
+  //   const subtitlefile= event.target.files[0]
+  //   if(subtitlefile){
+  //     const reader=new FileReader();
+  //     reader.readAsDataURL(subtitlefile);
+  //     reader.onload=()=>{
+  //       this.subtitleSrc=reader.result as string;
+  //       this.subtitleFile=subtitlefile;
+  //       // this.isUrlMode=true;
+  //       this.validateFiles();
+  //     }
+  //   }
+  //   const input = event.target as HTMLInputElement;
+  //   if (input.files && input.files.length) {
+  //     this.subtitleFile = input.files[0];
+  //     this.validateFiles()
+  //   }
+  // }
   validateFiles() {
     
   }
@@ -98,6 +116,7 @@ export class AudioUploadModalComponent {
           type : 'file',
           audioFile : this.audioFile,
           subtitleFile: this.subtitleFile,
+          subtitleSrc: this.subtitleSrc,
           audioSrc:this.audioSrc,
         });
       } 

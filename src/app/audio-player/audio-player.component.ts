@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AudioService } from '../audio.service';
 import { MatDialog } from '@angular/material/dialog';
 import { AudioUploadModalComponent } from '../audio-upload-modal/audio-upload-modal.component';
+import { audioData } from '../audioData';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-audio-player',
@@ -24,11 +26,16 @@ export class AudioPlayerComponent implements OnInit {
   currentFileName: string = '';
   currentFileSource: string = '';
   selectedFile: File | null = null;
-  audioList: any[] = [];
+  audioList: any[]=[] 
+  audioListOrignal: any[]=[] 
   audioSrcs: string | ArrayBuffer | null = null;
   isDropdownVisible = false;
 
-  constructor(public audioService: AudioService, public dialog: MatDialog) {
+  audio: HTMLAudioElement = new Audio();
+
+  @ViewChild('audioPlayer', { static: true }) audioPlayer!: ElementRef<HTMLAudioElement>;
+
+  constructor(public audioService: AudioService, public dialog: MatDialog,private http: HttpClient) {
     this.audioService.getAudioElement().addEventListener('timeupdate', () => {
       this.currentTime = this.audioService.getAudioElement().currentTime;
       this.duration = this.audioService.getAudioElement().duration;
@@ -52,8 +59,17 @@ export class AudioPlayerComponent implements OnInit {
   }
 
   loadAudioList() {
-    this.audioService.getAudios('audio-database').subscribe(audios => {
-      this.audioList = audios;
+    
+    this.audioService.getAudios().subscribe((response:any) => {
+      this.audioListOrignal=response,
+      console.log(this.audioListOrignal,'This is Responce Data Coming From Backend')
+     this.audioList=response.map((item:any)=>({
+      key:item.Key,
+      audioUrl:`baseUrl/${item.Key}`,
+      createdAt:item.LastModified, 
+      fileName:`${item.LastModified}/${item.Key}`
+     }))
+      console.log(this.audioList, 'this is audio list');
     });
   }
 
@@ -193,27 +209,27 @@ export class AudioPlayerComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
         if (result.type === 'file') {
-          console.log(result, 'this is file from modal');
+          console.log(result.audioFile, 'this is file from modal');
+          console.log(result.subtitleFile, 'this is file from modal');
+          
+           
 
-          // Handle file upload
-          const audioSrc = result.audioSrc; // Data URL of the audio file
-          const fileName = result.file.name;
-
-          this.audioService.addAudioToFirestore(fileName, audioSrc)
+          this.audioService.uploadFile(result.audioFile,result.subtitleFile)
             .then(() => {
               this.loadAudioList();
-              console.log('audio File Src added to firestore successfully');
+              console.log('audio File Src added to Aws Bucket successfully');
               
             })
-            .catch(error => console.error('Error adding audio to Firestore', error));
+            .catch((error:any) => console.error(';Error adding audio to Aws Bucket',));
         } else if (result.type === 'url') {
           const audioUrl = result.url;
-          this.audioService.addAudioToFirestore(audioUrl, audioUrl)
+          const audioUrlName=result.file.name
+          this.audioService.uploadFile(audioUrl,audioUrlName)
             .then(() => {
               this.loadAudioList();
               console.log('audio Url added to firestore successfully');
             })
-            .catch(error => console.error('Error adding audio to Firestore', error));
+            .catch((error:any) => console.error('Error adding audio to Firestore', error));
         }
       }
     });
@@ -230,8 +246,8 @@ export class AudioPlayerComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       try {
-        const audioUrl = await this.audioService.uploadFile(file);
-        await this.audioService.addAudioToFirestore(file.name, audioUrl);
+        // const audioUrl = await this.audioService.uploadFile(file);
+        // await this.audioService.uploadFile(file);
         console.log('File uploaded and metadata saved.');
       } catch (error) {
         console.error('Error uploading file:', error);
@@ -242,4 +258,19 @@ export class AudioPlayerComponent implements OnInit {
     this.isDropdownVisible = !this.isDropdownVisible;
   }
 
-}
+ 
+  playAudio(audioFile: string) {
+    if (this.isPlayingRecording) {
+      this.stopRecording();
+    }
+
+    this.audio.src = audioFile;
+    this.audio.play();
+    this.isPlayingAudio = true;
+    this.audio.ontimeupdate = () => this.currentTime = this.audio.currentTime;
+    this.audio.onended = () => this.isPlayingAudio = false;
+    this.currentFileName = this.audioList.find(audio => audio.audioFile === audioFile)?.key || '';
+    this.duration = this.audio.duration;
+  }
+  }
+  
