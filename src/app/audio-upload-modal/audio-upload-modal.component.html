@@ -1,16 +1,22 @@
 <h2 mat-dialog-title>Select Audio</h2>
 <mat-dialog-content>
   <div class="form-group">
-    <label for="audioFile">Upload from your computer:</label>
-    <input type="file" id="audioFile" (change)="onFileSelected($event,'audio')" accept="audio/*" [disabled]="isUrlMode" >
+    <label for="audioFile">{{ audioFileName || 'Upload from your computer:' | truncate:30  }}</label>
+    <input type="file" id="audioFile" (change)="onFileSelected($event, 'audio')" accept="audio/*" [disabled]="isUrlMode" style="display: none;">
+    <button mat-icon-button (click)="triggerFileInput('audioFile')" [disabled]="isUrlMode">
+      <mat-icon>upload</mat-icon>
+    </button>
   </div>
-  <div>
-    <label for="subtitleUpload">Upload Subtitle File:</label>
-    <input type="file" id="subtitleUpload" (change)="onFileSelected($event,'subtitle')">
+  <div class="form-group">
+    <label for="subtitleUpload">{{ subtitleFileName  || 'Upload Subtitle File:' | truncate:30 }}</label>
+    <input type="file" id="subtitleUpload" (change)="onFileSelected($event, 'subtitle')" style="display: none;">
+    <button mat-icon-button (click)="triggerFileInput('subtitleUpload')">
+      <mat-icon>upload</mat-icon>
+    </button>
   </div>
-  <div> 
+  <div class="form-group">
     <label for="audioUrl">Or provide a URL:</label>
-    <input type="text" id="audioUrl" [(ngModel)]="audioUrl" [disabled]="isFileMode" >
+    <input type="text" id="audioUrl" [(ngModel)]="audioUrl" [disabled]="isFileMode">
     <button mat-button (click)="onUrlProvided()">Load URL</button>
   </div>
 </mat-dialog-content>

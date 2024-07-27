@@ -32,7 +32,7 @@ export class AudioService {
   private currentAudioIndex: number = 0;
   private isPlaying: boolean = false;
   private backendUrl = 'http://localhost:3000';
-  // private awsUploadUrl = 'https://your-aws-upload-endpoint'; 
+  
   constructor(private firestore: AngularFirestore , private http:HttpClient) {
     this.audio.addEventListener('loadedmetadata', () => {
       this.loopEnd = this.audio.duration;
@@ -288,4 +288,7 @@ export class AudioService {
     }
     return { text: '' };
   }
-}
+  getAudioByKey(key: any) {
+    return this.http.get(`${this.backendUrl}/file/${key}`,{ responseType: 'blob' });
+  };
+  }

@@ -272,3 +272,10 @@ dropdown {
   align-items: center; 
   justify-content: center; 
 }
+.dropdown-content {
+  display: none;
+}
+
+.dropdown-content.show {
+  display: block;
+}

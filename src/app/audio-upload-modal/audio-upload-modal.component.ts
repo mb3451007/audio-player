@@ -14,25 +14,11 @@ export class AudioUploadModalComponent {
   subtitleFile: File | null = null;
   isUrlMode: boolean = false;
   isFileMode: boolean = false;
+  audioFileName: string = '';
+  subtitleFileName: string = '';
 
   constructor(public dialogRef: MatDialogRef<AudioUploadModalComponent>) {}
 
-  // onFileSelected(event: any) {
-  //   const file = event.target.files[0];
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.readAsDataURL(file);
-  //     reader.onload = () => {
-  //       this.audioSrc = reader.result as string;
-  //       this.dialogRef.close({ type: 'file', file, audioSrc: this.audioSrc });
-  //     };
-  //     reader.onerror = (error) => {
-  //       console.error('Error reading file:', error);
-  //     };
-  //   } else {
-  //     console.warn('No file selected');
-  //   }
-  // }
   onFileSelected(event: any, fileType: 'audio' | 'subtitle') {
     const file = event.target.files[0];
     if (file) {
@@ -40,10 +26,12 @@ export class AudioUploadModalComponent {
       reader.readAsDataURL(file);
       reader.onload = () => {
         if(fileType==='audio'){
+          this.audioFileName = file ? file.name : '';
            this.audioSrc=reader.result as string;
            this.audioFile=file;
         }
         else if(fileType==='subtitle'){
+          this.subtitleFileName = file ? file.name : '';
           this.subtitleSrc=reader.result as string;
           this.subtitleFile=file;
         }
@@ -124,5 +112,9 @@ export class AudioUploadModalComponent {
     else{
       console.warn('Both AudioFile and Subtitle must be Selected');
     }
+  }
+  triggerFileInput(inputId: string) {
+    const fileInput = document.getElementById(inputId) as HTMLElement;
+    fileInput.click();
   }
 }

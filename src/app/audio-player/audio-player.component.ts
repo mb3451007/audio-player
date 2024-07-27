@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AudioUploadModalComponent } from '../audio-upload-modal/audio-upload-modal.component';
 import { audioData } from '../audioData';
 import { HttpClient } from '@angular/common/http';
+import { response } from 'express';
 
 @Component({
   selector: 'app-audio-player',
@@ -30,6 +31,10 @@ export class AudioPlayerComponent implements OnInit {
   audioListOrignal: any[]=[] 
   audioSrcs: string | ArrayBuffer | null = null;
   isDropdownVisible = false;
+  currentAudio: string='';
+  currentAudioIndex: number = -1;
+  audioElement!: HTMLAudioElement;
+  baseUrl: string = 'http://localhost:3000/file';
 
   audio: HTMLAudioElement = new Audio();
 
@@ -58,20 +63,7 @@ export class AudioPlayerComponent implements OnInit {
     this.loadAudioList();
   }
 
-  loadAudioList() {
-    
-    this.audioService.getAudios().subscribe((response:any) => {
-      this.audioListOrignal=response,
-      console.log(this.audioListOrignal,'This is Responce Data Coming From Backend')
-     this.audioList=response.map((item:any)=>({
-      key:item.Key,
-      audioUrl:`baseUrl/${item.Key}`,
-      createdAt:item.LastModified, 
-      fileName:`${item.LastModified}/${item.Key}`
-     }))
-      console.log(this.audioList, 'this is audio list');
-    });
-  }
+ 
 
   toggleRepeat() {
     this.isRepeating = !this.isRepeating;
@@ -131,12 +123,16 @@ export class AudioPlayerComponent implements OnInit {
     this.isPlayingAudio = false;
   }
 
-  nextAudio() {
-    // Implement your logic for next audio
+  playNextAudio() {
+    if (this.currentAudioIndex < this.audioList.length - 1) {
+      this.playAudio(this.audioList[this.currentAudioIndex + 1].key);
+    }
   }
 
-  previousAudio() {
-    // Implement your logic for previous audio
+  playPreviousAudio() {
+    if (this.currentAudioIndex > 0) {
+      this.playAudio(this.audioList[this.currentAudioIndex - 1].key);
+    }
   }
 
   updatePlaybackRate(event: any) {
@@ -258,19 +254,29 @@ export class AudioPlayerComponent implements OnInit {
     this.isDropdownVisible = !this.isDropdownVisible;
   }
 
- 
-  playAudio(audioFile: string) {
-    if (this.isPlayingRecording) {
-      this.stopRecording();
-    }
+  loadAudioList(): void {
+    this.audioService.getAudios().subscribe((response: any) => {
+      this.audioListOrignal = response;
+      console.log(this.audioListOrignal, 'This is response data coming from backend');
+      this.audioList = response.map((item: any) => ({
+        key: item.Key,
+        audioUrl: `${this.baseUrl}/${item.Key}`,        
+        createdAt: item.LastModified,
+        fileName: `${item.LastModified}/${item.Key}`
+      }));
+      console.log(this.audioList, 'this is audio list');
 
-    this.audio.src = audioFile;
-    this.audio.play();
-    this.isPlayingAudio = true;
-    this.audio.ontimeupdate = () => this.currentTime = this.audio.currentTime;
-    this.audio.onended = () => this.isPlayingAudio = false;
-    this.currentFileName = this.audioList.find(audio => audio.audioFile === audioFile)?.key || '';
-    this.duration = this.audio.duration;
+    });
+  }
+ 
+ 
+  playAudio(key: string) {
+    this.audioService.getAudioByKey(key).subscribe(audioBlob => {
+      const audioURL = URL.createObjectURL(audioBlob);
+      this.audioElement.src = audioURL;
+      this.audioElement.play();
+      this.isPlayingAudio = true;
+    });
   }
   }
   
