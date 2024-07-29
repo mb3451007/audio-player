@@ -4,21 +4,21 @@
     <label for="audioFile">{{ audioFileName || 'Upload from your computer:' | truncate:30  }}</label>
     <input type="file" id="audioFile" (change)="onFileSelected($event, 'audio')" accept="audio/*" [disabled]="isUrlMode" style="display: none;">
     <button mat-icon-button (click)="triggerFileInput('audioFile')" [disabled]="isUrlMode">
-      <mat-icon>upload</mat-icon>
+      <mat-icon class="transition-icon">upload</mat-icon>
     </button>
   </div>
   <div class="form-group">
     <label for="subtitleUpload">{{ subtitleFileName  || 'Upload Subtitle File:' | truncate:30 }}</label>
     <input type="file" id="subtitleUpload" (change)="onFileSelected($event, 'subtitle')" style="display: none;">
     <button mat-icon-button (click)="triggerFileInput('subtitleUpload')">
-      <mat-icon>upload</mat-icon>
+      <mat-icon class="transition-icon">upload</mat-icon>
     </button>
   </div>
-  <div class="form-group">
+  <!-- <div class="form-group">
     <label for="audioUrl">Or provide a URL:</label>
     <input type="text" id="audioUrl" [(ngModel)]="audioUrl" [disabled]="isFileMode">
     <button mat-button (click)="onUrlProvided()">Load URL</button>
-  </div>
+  </div> -->
 </mat-dialog-content>
 <mat-dialog-actions>
   <button mat-button (click)="onCancel()">Cancel</button>

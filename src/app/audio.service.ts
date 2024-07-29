@@ -4,6 +4,7 @@ import * as RecordRTC from 'recordrtc';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/storage';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 interface Subtitle {
   start: number;
@@ -288,7 +289,16 @@ export class AudioService {
     }
     return { text: '' };
   }
-  getAudioByKey(key: any) {
-    return this.http.get(`${this.backendUrl}/file/${key}`,{ responseType: 'blob' });
-  };
+  // getAudioByKey(key: any) {
+  //   return this.http.post(`${this.backendUrl}/file/`, key);
+  // };
+
+  getAudioByKey(key: string): Observable<Blob> {
+    return this.http.post(`${this.backendUrl}/file`, { key }, { 
+      responseType: 'blob',  
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+  
+  
   }

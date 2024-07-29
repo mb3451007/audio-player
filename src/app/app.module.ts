@@ -24,13 +24,14 @@ import { MatTreeModule } from '@angular/material/tree';
 import { MatIconModule } from '@angular/material/icon';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { HttpClientModule } from '@angular/common/http';
+import { TruncateKeyPipe } from './truncate-key.pipe';
 
 
 
 
 
 @NgModule({
-  declarations: [AppComponent, AudioPlayerComponent, AudioUploadModalComponent, TruncatePipe],
+  declarations: [AppComponent, AudioPlayerComponent, AudioUploadModalComponent, TruncatePipe, TruncateKeyPipe],
   imports: [
     BrowserModule,
     AppRoutingModule,

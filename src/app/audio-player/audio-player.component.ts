@@ -31,7 +31,7 @@ export class AudioPlayerComponent implements OnInit {
   audioListOrignal: any[]=[] 
   audioSrcs: string | ArrayBuffer | null = null;
   isDropdownVisible = false;
-  currentAudio: string='';
+  currentAudio!: Blob;
   currentAudioIndex: number = -1;
   audioElement!: HTMLAudioElement;
   baseUrl: string = 'http://localhost:3000/file';
@@ -258,25 +258,75 @@ export class AudioPlayerComponent implements OnInit {
     this.audioService.getAudios().subscribe((response: any) => {
       this.audioListOrignal = response;
       console.log(this.audioListOrignal, 'This is response data coming from backend');
-      this.audioList = response.map((item: any) => ({
-        key: item.Key,
-        audioUrl: `${this.baseUrl}/${item.Key}`,        
-        createdAt: item.LastModified,
-        fileName: `${item.LastModified}/${item.Key}`
-      }));
+  
+      this.audioList = response.map((item: any) => {
+        const isAudioFile = item.Key.endsWith('.mp3'); // Check if the file is an audio file
+        return {
+          key: item.Key,
+          audioUrl: `${this.baseUrl}/${item.Key}`,
+          createdAt: item.LastModified,
+          fileName: `${item.LastModified}/${item.Key}`,
+          audioFileKey: isAudioFile ? item.Key : null,
+          subtitleFileKey: isAudioFile ? null : item.Key
+        };
+      });
+  
       console.log(this.audioList, 'this is audio list');
-
     });
-  }
- 
- 
-  playAudio(key: string) {
-    this.audioService.getAudioByKey(key).subscribe(audioBlob => {
-      const audioURL = URL.createObjectURL(audioBlob);
-      this.audioElement.src = audioURL;
-      this.audioElement.play();
-      this.isPlayingAudio = true;
-    });
-  }
   }
   
+ 
+  // playAudio(key: string) {
+  //   // this.audioService.getAudioByKey(key).subscribe(audioBlob => {
+  //   //   const audioURL = URL.createObjectURL(audioBlob);
+  //   //   this.audioElement.src = audioURL;
+  //   //   this.currentAudio = audioURL;
+  //   //   this.audioElement.play();
+  //   //   this.isPlayingAudio = true;
+  //   //   console.log(this.currentAudio, 'this is current audio');
+  //   // });
+    
+
+  //   //   this.audioService.getAudioByKey(key).subscribe((audioBlob:any) => {
+  //   //     console.log(key, 'this is key coming from frontend')
+  //   //     console.log(audioBlob, 'this is key storing')
+
+  //   //     const audioURL = URL.createObjectURL(audioBlob);
+  //   //     this.audioElement.src = audioURL;
+  //   //     this.currentAudio = audioURL;
+  //   //     this.audioElement.play();
+  //   //     this.isPlayingAudio = true;
+  //   //     console.log(this.currentAudio, 'this is current audio');
+  //   //   });
+
+  //   this.audioService.getAudioByKey(key).subscribe({
+  //     next:(response)=>{
+  //       this.loadAudioList();
+         
+    
+            
+  //       },error:(error)=>{
+  //         console.log(error)
+  //       }
+  //   })}}
+  playAudio(key: string) {
+    this.audioService.getAudioByKey(key).subscribe({
+      next: (audioBlob) => {
+        console.log(audioBlob, 'successfully loaded audio key');
+        
+        const audioURL = URL.createObjectURL(audioBlob);
+        console.log ('url', audioURL)
+        this.currentAudio = audioBlob
+        
+        // this.audioElement.src = audioURL;
+        // this.currentAudio = audioURL;
+        // this.audioElement.play();
+        this.isPlayingAudio = true;
+        console.log(this.currentAudio, 'this is current audio');
+      },
+      error: (error) => {
+        console.error('Error fetching audio:', error);
+      }
+    });
+  }}
+ 

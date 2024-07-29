@@ -18,11 +18,25 @@ mat-dialog-actions {
 }
 
 button[mat-button] {
-  transition: background-color 0.3s, color 0.3s;
+  color: white;
+  /* transition: background-color 0.3s, color 0.3s; */
   background-color: #4CAF50;
+  border-radius: 10px;
+  /* transition: transform 0.3s ease; */
 }
 
 button[mat-button]:hover {
   background-color: #45a049;
   color: white;
+  border-radius: 10px;
+  
+}
+.transition-icon {
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.transition-icon:hover {
+  transform: scale(1.1) !important;
+  transform: scale(1.1);
+  color: #007bff; /* Change color on hover if desired */
 }

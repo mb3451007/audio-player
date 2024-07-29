@@ -46,16 +46,16 @@ export class AudioUploadModalComponent {
       console.warn('No file selected');
     }
   }
-  onUrlProvided() {
-    this.isUrlMode=true;
-    this.isFileMode=false;
-    this.audioFile=null;
-    this.subtitleFile=null;
-    this.audioSrc=null;
-    this.subtitleSrc=null;
-    this.validateFiles();
+  // onUrlProvided() {
+  //   this.isUrlMode=true;
+  //   this.isFileMode=false;
+  //   this.audioFile=null;
+  //   this.subtitleFile=null;
+  //   this.audioSrc=null;
+  //   this.subtitleSrc=null;
+  //   this.validateFiles();
     
-  }
+  // }
 
   onCancel() {
     this.dialogRef.close(null);

@@ -21,7 +21,7 @@ body {
 }
 
 .navbar {
-  background-color: #333;
+  background-color: #f3f4f6;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -30,6 +30,7 @@ body {
 }
 
 .navbar button, .navbar .dropbtn {
+  border-radius: 15px;
   background-color: #4CAF50;
   color: white;
   border: none;
@@ -228,6 +229,7 @@ dropdown {
 }
 
 .dropdown-content {
+  cursor: pointer;
   display: none;
   position: absolute;
   background-color: #f9f9f9;
@@ -243,7 +245,7 @@ dropdown {
 
 .dropdown-content a {
   color: black;
-  padding: 10px 16px;
+  padding: 12px 16px;
   text-decoration: none;
   display: block;
 }
@@ -257,12 +259,12 @@ dropdown {
 }
 /*  */
 .text-black {
-  width: 20px;
-  height: 20px;
+  width: 23px;
+  height: 23px;
   margin-top: 11px;
   margin-left: 2px;
-  background-color: green !important;
-  color: black; 
+  background-color:#4CAF50 !important;
+  color: white; 
   border-radius: 50%; 
   font-size: 15px; 
   font-weight: bold; 

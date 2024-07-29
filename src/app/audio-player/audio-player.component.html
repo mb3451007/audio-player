@@ -4,7 +4,7 @@
     <div class="dropdown">
       <button class="dropbtn" (click)="toggleDropdown()">Audio List</button>
       <div class="dropdown-content" [ngClass]="{'show': isDropdownVisible}">
-        <a *ngFor="let audio of audioList" (click)="playAudio(audio.key)">{{ audio.key | truncate:30 }}</a>
+        <a *ngFor="let audio of audioList" (click)="playAudio(audio.key)">{{ audio.audioFileKey | truncateKey:30 }}</a>
       </div>
     </div>
   </div>
@@ -71,7 +71,7 @@
 
 <div class="audio-timeline">
   <div class="current-time">{{ formatTime(currentTime) }}</div>
-  <audio type="range" (change)="onTimeUpdate($event)" class="timeline-slider" [(ngModel)]="currentTime" controls>
+  <audio type="audio/ogg" (change)="onTimeUpdate($event)" class="timeline-slider" [(ngModel)]="currentTime" controls>
     <source [src]="currentAudio" type="audio/ogg">
     Your browser does not support the audio element.
   </audio>
