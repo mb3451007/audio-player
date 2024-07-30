@@ -69,18 +69,19 @@
   </label>
 </div>
 
-<div class="audio-timeline">
+<div class="audio-timeline" #audioTimeline>
   <div class="current-time">{{ formatTime(currentTime) }}</div>
-  <audio type="audio/ogg" (change)="onTimeUpdate($event)" class="timeline-slider" [(ngModel)]="currentTime" controls>
+  <input type="range" [src]="currentAudio" min="0" [max]="duration" [(ngModel)]="currentTime" (change)="onTimeUpdate($event)" class="timeline-slider">
+  <div class="total-time">{{ formatTime(duration) }}</div>
+  <div class="loop-point" *ngIf="showLoopStart" [style.left.%]="(loopStart / duration) * 100" draggable="true" (mousedown)="onDragStartLoop()"></div>
+  <div class="loop-point" *ngIf="showLoopEnd" [style.left.%]="(loopEnd / duration) * 100" draggable="true" (mousedown)="onDragEndLoop()"></div>
+</div>
+</div>
+  <!-- <audio type="audio/ogg" (change)="onTimeUpdate($event)" class="timeline-slider" [(ngModel)]="currentTime" controls>
     <source [src]="currentAudio" type="audio/ogg">
     Your browser does not support the audio element.
-  </audio>
-  <!-- <input type="range" min="0" [max]="duration" [(ngModel)]="currentTime" (change)="onTimeUpdate($event)" class="timeline-slider"> -->
-  <div class="total-time">{{ formatTime(duration) }}</div>
-  <div class="loop-point" *ngIf="showLoopStart" [style.left.%]="(loopStart / duration) * 100" draggable="true" (dragend)="onLoopPointDrag($event, 'start')"></div>
-  <div class="loop-point" *ngIf="showLoopEnd" [style.left.%]="(loopEnd / duration) * 100" draggable="true" (dragend)="onLoopPointDrag($event, 'end')"></div>
-</div>
-</div>
+  </audio> -->
+
 <script>
   audio.play(); // <-- This is asynchronous!
   audio.pause();

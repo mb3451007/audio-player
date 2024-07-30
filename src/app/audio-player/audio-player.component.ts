@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { AudioService } from '../audio.service';
 import { MatDialog } from '@angular/material/dialog';
 import { AudioUploadModalComponent } from '../audio-upload-modal/audio-upload-modal.component';
@@ -31,13 +31,20 @@ export class AudioPlayerComponent implements OnInit {
   audioListOrignal: any[]=[] 
   audioSrcs: string | ArrayBuffer | null = null;
   isDropdownVisible = false;
-  currentAudio!: Blob;
+  currentAudio: any;
   currentAudioIndex: number = -1;
   audioElement!: HTMLAudioElement;
+
   baseUrl: string = 'http://localhost:3000/file';
+  audioSource:string='https://30dsaaudio.s3.amazonaws.com/';
+  private isDraggingStart = false;
+  private isDraggingEnd = false;
+  private timelineWidth = 0;
 
   audio: HTMLAudioElement = new Audio();
-
+  @ViewChild('timeline', { static: true }) timeline!: ElementRef<HTMLDivElement>;
+  @ViewChild('startLoop', { static: true }) startLoop!: ElementRef<HTMLDivElement>;
+  @ViewChild('endLoop', { static: true }) endLoop!: ElementRef<HTMLDivElement>;
   @ViewChild('audioPlayer', { static: true }) audioPlayer!: ElementRef<HTMLAudioElement>;
 
   constructor(public audioService: AudioService, public dialog: MatDialog,private http: HttpClient) {
@@ -168,11 +175,12 @@ export class AudioPlayerComponent implements OnInit {
     this.showLoopEnd = !this.showLoopEnd;
   }
 
-  formatTime(time: number): string {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${this.padZero(minutes)}:${this.padZero(seconds)}`;
+  formatTime(seconds: number): string {
+    const min = Math.floor(seconds / 60);
+    const sec = Math.floor(seconds % 60);
+    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
   }
+
 
   padZero(number: number): string {
     return number < 10 ? `0${number}` : `${number}`;
@@ -191,6 +199,7 @@ export class AudioPlayerComponent implements OnInit {
       this.loopEnd = newTime;
     }
     this.audioService.setLoop(this.loopStart, this.loopEnd);
+    event.preventDefault();
   }
 
   updateSubtitle() {
@@ -259,74 +268,86 @@ export class AudioPlayerComponent implements OnInit {
       this.audioListOrignal = response;
       console.log(this.audioListOrignal, 'This is response data coming from backend');
   
-      this.audioList = response.map((item: any) => {
-        const isAudioFile = item.Key.endsWith('.mp3'); // Check if the file is an audio file
-        return {
-          key: item.Key,
-          audioUrl: `${this.baseUrl}/${item.Key}`,
-          createdAt: item.LastModified,
-          fileName: `${item.LastModified}/${item.Key}`,
-          audioFileKey: isAudioFile ? item.Key : null,
-          subtitleFileKey: isAudioFile ? null : item.Key
-        };
+      this.audioList = response
+      .filter((item: any) => item.Key.endsWith('.mp3') || item.Key.endsWith('.wav'))
+      .map((item:any)=>{
+          return {
+            key: item.Key,
+            audioUrl: `${this.baseUrl}/${item.Key}`,
+            createdAt: item.LastModified,
+            fileName: `${item.LastModified}/${item.Key}`,
+            audioFileKey:  item.Key ,
+            subtitleFileKey:  null 
+          };
+        });
       });
-  
-      console.log(this.audioList, 'this is audio list');
-    });
+      console.log ('final list', this.audioList)
   }
-  
- 
-  // playAudio(key: string) {
-  //   // this.audioService.getAudioByKey(key).subscribe(audioBlob => {
-  //   //   const audioURL = URL.createObjectURL(audioBlob);
-  //   //   this.audioElement.src = audioURL;
-  //   //   this.currentAudio = audioURL;
-  //   //   this.audioElement.play();
-  //   //   this.isPlayingAudio = true;
-  //   //   console.log(this.currentAudio, 'this is current audio');
-  //   // });
-    
 
-  //   //   this.audioService.getAudioByKey(key).subscribe((audioBlob:any) => {
-  //   //     console.log(key, 'this is key coming from frontend')
-  //   //     console.log(audioBlob, 'this is key storing')
 
-  //   //     const audioURL = URL.createObjectURL(audioBlob);
-  //   //     this.audioElement.src = audioURL;
-  //   //     this.currentAudio = audioURL;
-  //   //     this.audioElement.play();
-  //   //     this.isPlayingAudio = true;
-  //   //     console.log(this.currentAudio, 'this is current audio');
-  //   //   });
-
-  //   this.audioService.getAudioByKey(key).subscribe({
-  //     next:(response)=>{
-  //       this.loadAudioList();
-         
-    
-            
-  //       },error:(error)=>{
-  //         console.log(error)
-  //       }
-  //   })}}
   playAudio(key: string) {
-    this.audioService.getAudioByKey(key).subscribe({
-      next: (audioBlob) => {
-        console.log(audioBlob, 'successfully loaded audio key');
-        
-        const audioURL = URL.createObjectURL(audioBlob);
-        console.log ('url', audioURL)
-        this.currentAudio = audioBlob
-        
-        // this.audioElement.src = audioURL;
-        // this.currentAudio = audioURL;
-        // this.audioElement.play();
-        this.isPlayingAudio = true;
-        console.log(this.currentAudio, 'this is current audio');
-      },
-      error: (error) => {
-        console.error('Error fetching audio:', error);
+    this.stopAudio();
+    this.audioService.loadAudioUrl("https:30dsaaudio.s3.amazonaws.com/" + key)
+    this.togglePlayAudio()
+
+    // this.audioService.getAudioByKey(key).subscribe({
+    //   next: (audioBlob) => {
+    //     console.log(audioBlob, 'successfully loaded audio key');
+    //     console.log(key,'keyyyy');
+    //     const audioURL = URL.createObjectURL(audioBlob);
+    //     console.log ('url', audioURL)
+    //     this.currentAudio = `https:30dsaaudio.s3.amazonaws.com/${key}`
+    //     console.log(this.currentAudio,'this is currentAudio test');
+    //     this.isPlayingAudio = true;
+    //   },
+    //   error: (error) => {
+    //     console.error('Error fetching audio:', error);
+    //   }
+    // });
+  }
+
+  // loops
+
+
+  ngAfterViewInit() {
+    this.timelineWidth = this.timeline.nativeElement.offsetWidth;
+  }
+
+ 
+  @HostListener('document:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (this.isDraggingStart) {
+      const newLeft = this.getRelativePosition(event.clientX);
+      if (newLeft < this.loopEnd) {
+        this.loopStart = (newLeft / this.timelineWidth) * this.duration;
       }
-    });
-  }}
+    }
+
+    if (this.isDraggingEnd) {
+      const newRight = this.getRelativePosition(event.clientX);
+      if (newRight > this.loopStart) {
+        this.loopEnd = (newRight / this.timelineWidth) * this.duration;
+      }
+    }
+  }
+
+  @HostListener('document:mouseup')
+  onMouseUp() {
+    this.isDraggingStart = false;
+    this.isDraggingEnd = false;
+  }
+  onDragStartLoop() {
+    this.isDraggingStart = true;
+  }
+
+  onDragEndLoop() {
+    this.isDraggingEnd = true;
+  }
+  private getRelativePosition(mouseX: number): number {
+    const timelineRect = this.timeline.nativeElement.getBoundingClientRect();
+    return Math.max(0, Math.min(mouseX - timelineRect.left, this.timelineWidth));
+  }
+ 
+}
+
  

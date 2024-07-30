@@ -146,10 +146,7 @@ body {
   margin-top: 20px;
 }
 
-.timeline-slider {
-  width: 80%;
-  margin: 0 10px;
-}
+
 
 .loop-point {
   position: absolute;
@@ -281,3 +278,112 @@ dropdown {
 .dropdown-content.show {
   display: block;
 }
+
+
+.timeline {
+  position: relative;
+  width: 100%;
+  height: 50px;
+  background-color: #f0f0f0;
+}
+
+.loop-handle {
+  position: absolute;
+  width: 10px;
+  height: 100%;
+  background-color: #333;
+  cursor: pointer;
+}
+
+.start-loop {
+  left: 0;
+}
+
+.end-loop {
+  right: 0;
+}
+
+.audio-timeline {
+  position: relative;
+  width: 100%;
+  height: 40px; /* Adjust as needed */
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+.current-time, .total-time {
+  font-size: 14px;
+  color: #333;
+}
+
+.timeline-slider {
+  flex-grow: 1;
+  margin: 0 10px;
+}
+
+.loop-point {
+  position: absolute;
+  width: 10px; /* Width of the loop point marker */
+  height: 20px; /* Height of the loop point marker */
+  background-color: #ff6347; /* Tomato color */
+  cursor: pointer;
+  border-radius: 3px;
+  top: 50%; /* Center vertically */
+  transform: translateY(-50%);
+}
+
+.loop-point:after {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 100%;
+  background-color: #000;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.loop-point:active {
+  background-color: #ff4500; /* Darker shade on active */
+}
+
+.audio-timeline input[type="range"] {
+  width: 100%;
+  height: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #ccc;
+  border-radius: 5px;
+  overflow: hidden;
+  outline: none;
+  cursor: pointer;
+}
+
+.audio-timeline input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #007bff;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.audio-timeline input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #007bff;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.audio-timeline input[type="range"]::-webkit-slider-thumb:hover,
+.audio-timeline input[type="range"]::-moz-range-thumb:hover {
+  background: #0056b3;
+}
+

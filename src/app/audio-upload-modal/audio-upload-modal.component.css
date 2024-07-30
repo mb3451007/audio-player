@@ -31,12 +31,20 @@ button[mat-button]:hover {
   border-radius: 10px;
   
 }
-.transition-icon {
-  transition: transform 0.3s ease, color 0.3s ease;
+/* Add a class for the icons with transitions */
+.icon-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
-.transition-icon:hover {
-  transform: scale(1.1) !important;
-  transform: scale(1.1);
-  color: #007bff; /* Change color on hover if desired */
+.icon-container:hover {
+  transform: scale(1.1); /* Slightly enlarges the icon on hover */
+  opacity: 0.8; /* Slightly fades the icon on hover */
+}
+
+.icons {
+  width: 24px; /* Adjust as needed */
+  height: 24px; /* Adjust as needed */
 }
