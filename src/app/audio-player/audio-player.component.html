@@ -4,14 +4,14 @@
     <div class="dropdown">
       <button class="dropbtn" (click)="toggleDropdown()">Audio List</button>
       <div class="dropdown-content" [ngClass]="{'show': isDropdownVisible}">
-        <a *ngFor="let audio of audioList" (click)="playAudio(audio.key)">{{ audio.audioFileKey | truncateKey:30 }}</a>
+        <a *ngFor="let audio of audioList; let i = index" (click)="playAudio(audio.key,i)">{{ audio.audioFileKey | truncateKey:30 }}</a>
       </div>
     </div>
   </div>
 <main>
-  <div class="filename">
-    <h2>{{ currentFileName | truncate:20 }}</h2>
-    <span class="tooltiptext">{{ currentFileName }}</span>
+  <div class="filename" >
+    <h2>{{ currentlyPlayingKey | truncateKey:30 }}</h2>
+    <span class="tooltiptext">>{{ currentlyPlayingKey }}</span>
   </div>
   <section class="lesson">
     <div class="subtitles">{{ currentSubtitle }}</div>
@@ -45,12 +45,12 @@
     </button>
   </div>
   <div class="icons-row">
-    <button >
+    <button (click)=playPreviousAudio()>
       <svg class="icons" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M493.6 445c-11.2 5.3-24.5 3.6-34.1-4.4L288 297.7 288 416c0 12.4-7.2 23.7-18.4 29s-24.5 3.6-34.1-4.4L64 297.7 64 416c0 17.7-14.3 32-32 32s-32-14.3-32-32L0 96C0 78.3 14.3 64 32 64s32 14.3 32 32l0 118.3L235.5 71.4c9.5-7.9 22.8-9.7 34.1-4.4S288 83.6 288 96l0 118.3L459.5 71.4c9.5-7.9 22.8-9.7 34.1-4.4S512 83.6 512 96l0 320c0 12.4-7.2 23.7-18.4 29z"/></svg>
     </button>
     <button class="text-black" (click)="toggleLoopStart()">A</button>
     <button class="text-black" (click)="toggleLoopEnd()">B</button>
-    <button >
+    <button (click)=playNextAudio() >
       <svg class="icons" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M18.4 445c11.2 5.3 24.5 3.6 34.1-4.4L224 297.7 224 416c0 12.4 7.2 23.7 18.4 29s24.5 3.6 34.1-4.4L448 297.7 448 416c0 17.7 14.3 32 32 32s32-14.3 32-32l0-320c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 118.3L276.5 71.4c-9.5-7.9-22.8-9.7-34.1-4.4S224 83.6 224 96l0 118.3L52.5 71.4c-9.5-7.9-22.8-9.7-34.1-4.4S0 83.6 0 96L0 416c0 12.4 7.2 23.7 18.4 29z"/></svg>
     </button>
   </div>
@@ -59,14 +59,14 @@
     <input type="number" step="0.5" min="0.25" max="2.0" [value]="playbackRate" (change)="updatePlaybackRate($event)">
     <span>{{ playbackRate }}x</span>
   </label>
-  <label *ngIf="showLoopStart">
+  <!-- <label *ngIf="showLoopStart">
     Loop Start (A):
     <input type="number" [value]="loopStart" (change)="updateLoopStart($event)">
   </label>
-  <label *ngIf="showLoopEnd">
-    Loop End (B):
+  <label *ngIf="showLoopEnd"> -->
+    <!-- Loop End (B):
     <input type="number" [value]="loopEnd" (change)="updateLoopEnd($event)">
-  </label>
+  </label> -->
 </div>
 
 <div class="audio-timeline" #audioTimeline>

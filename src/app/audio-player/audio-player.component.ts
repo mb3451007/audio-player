@@ -5,6 +5,7 @@ import { AudioUploadModalComponent } from '../audio-upload-modal/audio-upload-mo
 import { audioData } from '../audioData';
 import { HttpClient } from '@angular/common/http';
 import { response } from 'express';
+import { KeyedRead } from '@angular/compiler';
 
 @Component({
   selector: 'app-audio-player',
@@ -28,19 +29,21 @@ export class AudioPlayerComponent implements OnInit {
   currentFileSource: string = '';
   selectedFile: File | null = null;
   audioList: any[]=[] 
+  subtitleList: any[]=[] 
   audioListOrignal: any[]=[] 
   audioSrcs: string | ArrayBuffer | null = null;
   isDropdownVisible = false;
   currentAudio: any;
-  currentAudioIndex: number = -1;
+  currentAudioIndex: number = 0;
   audioElement!: HTMLAudioElement;
   initialLoopStart: number = 0;
   initialLoopEnd: number = 0;
+  currentlyPlayingKey:string='';
   baseUrl: string = 'http://localhost:3000/file';
   audioSource:string='https://30dsaaudio.s3.amazonaws.com/';
-  private isDraggingStart = false;
-  private isDraggingEnd = false;
-  private timelineWidth = 0;
+  
+  
+  private audioKeys: string[] = [];
  
   audio: HTMLAudioElement = new Audio();
  
@@ -129,17 +132,7 @@ export class AudioPlayerComponent implements OnInit {
     this.isPlayingAudio = false;
   }
 
-  playNextAudio() {
-    if (this.currentAudioIndex < this.audioList.length - 1) {
-      this.playAudio(this.audioList[this.currentAudioIndex + 1].key);
-    }
-  }
-
-  playPreviousAudio() {
-    if (this.currentAudioIndex > 0) {
-      this.playAudio(this.audioList[this.currentAudioIndex - 1].key);
-    }
-  }
+ 
 
   updatePlaybackRate(event: any) {
     let rate = parseFloat(event.target.value);
@@ -158,6 +151,9 @@ export class AudioPlayerComponent implements OnInit {
 
 
   formatTime(seconds: number): string {
+    if(isNaN(seconds)){
+      return '00:00';
+    }
     const min = Math.floor(seconds / 60);
     const sec = Math.floor(seconds % 60);
     return `${min}:${sec < 10 ? '0' : ''}${sec}`;
@@ -250,16 +246,50 @@ export class AudioPlayerComponent implements OnInit {
             subtitleFileKey:  null 
           };
         });
-      });
+        this.subtitleList=response
+        .filter((item:any) => !item.Key.endsWith('.mp3') && !item.Key.endsWith('.wav')).map((item:any) =>{
+          return{
+            key: item.Key,
+            subtitleUrl: `${this.baseUrl}/${item.Key}`,
+            createdAt: item.LastModified,
+            fileName: `${item.LastModified}/${item.Key}`,
+            audioFileKey:  null ,
+            subtitleFileKey:  item.Key 
+          }
+        })
+      }
+    );
+    console.log ('subtitle list o complete', this.subtitleList)
       console.log ('final list', this.audioList)
   }
  
-  playAudio(key: string) {
+  playAudio(key: string,index: number) {
+    console.log ('subtitle list o complete', this.subtitleList)
     this.stopAudio();
-    this.audioService.loadAudioUrl("https:30dsaaudio.s3.amazonaws.com/" + key)
+    // const index=this.audioList.findIndex(audio =>audio.key===key)
+    this.currentAudioIndex = index
+    this.currentlyPlayingKey=this.audioList[this.currentAudioIndex].key;
+    console.log(this.currentAudioIndex,'this is current audio index')
+    this.currentTime=0;
+    this.duration=0;
+    this.audioService.loadAudioUrl(this.audioSource + key)
     this.togglePlayAudio()
   }
+  playNextAudio() {
+    if (this.currentAudioIndex < this.audioList.length - 1) {
+      this.currentAudioIndex++;
+      const nextAudio = this.audioList[this.currentAudioIndex];
+      this.playAudio(nextAudio.key, this.currentAudioIndex);
+    }
+  }
+  playPreviousAudio() {
+    if (this.currentAudioIndex > 0) {
+      this.currentAudioIndex--;
+      const previousAudio = this.audioList[this.currentAudioIndex];
+      this.playAudio(previousAudio.key, this.currentAudioIndex);
 
+    }
+  }
   // loops
   toggleLoopStart() {
     if (!this.showLoopStart) {
