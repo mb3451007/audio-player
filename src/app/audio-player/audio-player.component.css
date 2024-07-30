@@ -158,6 +158,12 @@ body {
   transition: background-color 0.3s ease;
 }
 
+.loop-point.start{
+  left: 0 !important;
+}
+.loop-point.end{
+  right: 0 !important;
+}
 .loop-point:hover {
   background-color: #FF6347;
 }
@@ -327,11 +333,11 @@ dropdown {
 
 .loop-point {
   position: absolute;
-  width: 10px; /* Width of the loop point marker */
-  height: 20px; /* Height of the loop point marker */
-  background-color: #ff6347; /* Tomato color */
+  width: 17px;
+  height: 17px; 
+  background-color: red; 
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: 50%;
   top: 50%; /* Center vertically */
   transform: translateY(-50%);
 }
@@ -386,4 +392,5 @@ dropdown {
 .audio-timeline input[type="range"]::-moz-range-thumb:hover {
   background: #0056b3;
 }
+
 

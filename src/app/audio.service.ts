@@ -149,18 +149,7 @@ export class AudioService {
     this.audio.currentTime = time;
   }
 
-  setLoop(start: number, end: number) {
-    this.loopStart = start;
-    this.loopEnd = end;
-    this.audio.addEventListener('timeupdate', this.loopHandler.bind(this));
-  }
-
-  private loopHandler() {
-    if (this.audio.currentTime >= this.loopEnd) {
-      this.audio.currentTime = this.loopStart;
-      this.audio.play();
-    }
-  }
+ 
 
   getAudioElement(): HTMLAudioElement {
     return this.audio;
@@ -299,6 +288,17 @@ export class AudioService {
       headers: { 'Content-Type': 'application/json' }
     });
   }
+  // Loop
+  setLoop(start: number, end: number) {
+    this.loopStart = start;
+    this.loopEnd = end;
+    this.audio.addEventListener('timeupdate', this.loopHandler.bind(this));
+  }
   
-  
+  loopHandler() {
+    if (this.audio.currentTime >= this.loopEnd) {
+      this.audio.currentTime = this.loopStart;
+      this.audio.play();
+    }
+  }
   }

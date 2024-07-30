@@ -34,17 +34,16 @@ export class AudioPlayerComponent implements OnInit {
   currentAudio: any;
   currentAudioIndex: number = -1;
   audioElement!: HTMLAudioElement;
-
+  initialLoopStart: number = 0;
+  initialLoopEnd: number = 0;
   baseUrl: string = 'http://localhost:3000/file';
   audioSource:string='https://30dsaaudio.s3.amazonaws.com/';
   private isDraggingStart = false;
   private isDraggingEnd = false;
   private timelineWidth = 0;
-
+ 
   audio: HTMLAudioElement = new Audio();
-  @ViewChild('timeline', { static: true }) timeline!: ElementRef<HTMLDivElement>;
-  @ViewChild('startLoop', { static: true }) startLoop!: ElementRef<HTMLDivElement>;
-  @ViewChild('endLoop', { static: true }) endLoop!: ElementRef<HTMLDivElement>;
+ 
   @ViewChild('audioPlayer', { static: true }) audioPlayer!: ElementRef<HTMLAudioElement>;
 
   constructor(public audioService: AudioService, public dialog: MatDialog,private http: HttpClient) {
@@ -157,23 +156,6 @@ export class AudioPlayerComponent implements OnInit {
     this.audioService.setPlaybackRate(rate);
   }
 
-  updateLoopStart(event: any) {
-    this.loopStart = parseFloat(event.target.value);
-    this.audioService.setLoop(this.loopStart, this.loopEnd);
-  }
-
-  updateLoopEnd(event: any) {
-    this.loopEnd = parseFloat(event.target.value);
-    this.audioService.setLoop(this.loopStart, this.loopEnd);
-  }
-
-  toggleLoopStart() {
-    this.showLoopStart = !this.showLoopStart;
-  }
-
-  toggleLoopEnd() {
-    this.showLoopEnd = !this.showLoopEnd;
-  }
 
   formatTime(seconds: number): string {
     const min = Math.floor(seconds / 60);
@@ -189,19 +171,7 @@ export class AudioPlayerComponent implements OnInit {
   onTimeUpdate(event: any) {
     this.audioService.setCurrentTime(event.target.value);
   }
-
-  onLoopPointDrag(event: DragEvent, point: 'start' | 'end') {
-    const rect = (event.target as HTMLElement).parentElement!.getBoundingClientRect();
-    const newTime = (event.clientX - rect.left) / rect.width * this.duration;
-    if (point === 'start') {
-      this.loopStart = newTime;
-    } else {
-      this.loopEnd = newTime;
-    }
-    this.audioService.setLoop(this.loopStart, this.loopEnd);
-    event.preventDefault();
-  }
-
+ 
   updateSubtitle() {
     this.currentSubtitle = this.audioService.getSubtitleForCurrentTime();
   }
@@ -283,70 +253,53 @@ export class AudioPlayerComponent implements OnInit {
       });
       console.log ('final list', this.audioList)
   }
-
-
+ 
   playAudio(key: string) {
     this.stopAudio();
     this.audioService.loadAudioUrl("https:30dsaaudio.s3.amazonaws.com/" + key)
     this.togglePlayAudio()
-
-    // this.audioService.getAudioByKey(key).subscribe({
-    //   next: (audioBlob) => {
-    //     console.log(audioBlob, 'successfully loaded audio key');
-    //     console.log(key,'keyyyy');
-    //     const audioURL = URL.createObjectURL(audioBlob);
-    //     console.log ('url', audioURL)
-    //     this.currentAudio = `https:30dsaaudio.s3.amazonaws.com/${key}`
-    //     console.log(this.currentAudio,'this is currentAudio test');
-    //     this.isPlayingAudio = true;
-    //   },
-    //   error: (error) => {
-    //     console.error('Error fetching audio:', error);
-    //   }
-    // });
   }
 
   // loops
-
-
-  ngAfterViewInit() {
-    this.timelineWidth = this.timeline.nativeElement.offsetWidth;
-  }
-
- 
-  @HostListener('document:mousemove', ['$event'])
-  onMouseMove(event: MouseEvent) {
-    if (this.isDraggingStart) {
-      const newLeft = this.getRelativePosition(event.clientX);
-      if (newLeft < this.loopEnd) {
-        this.loopStart = (newLeft / this.timelineWidth) * this.duration;
-      }
-    }
-
-    if (this.isDraggingEnd) {
-      const newRight = this.getRelativePosition(event.clientX);
-      if (newRight > this.loopStart) {
-        this.loopEnd = (newRight / this.timelineWidth) * this.duration;
-      }
+  toggleLoopStart() {
+    if (!this.showLoopStart) {
+      this.showLoopStart = true;
+      this.initialLoopStart = this.currentTime;
+    } else {
+      this.showLoopStart = false;
     }
   }
+  
+  toggleLoopEnd() {
+    if (!this.showLoopEnd) {
+      this.showLoopEnd = true;
+      this.initialLoopEnd = this.currentTime;
+    } else {
+      this.showLoopEnd = false;
+    }
+  }
+  
+  updateLoopStart(event: any) {
+    this.loopStart = parseFloat(event.target.value);
+    this.audioService.setLoop(this.loopStart, this.loopEnd);
+  }
+  
+  updateLoopEnd(event: any) {
+    this.loopEnd = parseFloat(event.target.value);
+    this.audioService.setLoop(this.loopStart, this.loopEnd);
+  }
+  
+  onLoopPointDrag(event: DragEvent, point: 'start' | 'end') {
+    const rect = (event.target as HTMLElement).parentElement!.getBoundingClientRect();
+    const newTime = (event.clientX - rect.left) / rect.width * this.duration;
+    if (point === 'start') {
+      this.loopStart = newTime;
+    } else {
+      this.loopEnd = newTime;
+    }
+    this.audioService.setLoop(this.loopStart, this.loopEnd);
+  }
 
-  @HostListener('document:mouseup')
-  onMouseUp() {
-    this.isDraggingStart = false;
-    this.isDraggingEnd = false;
-  }
-  onDragStartLoop() {
-    this.isDraggingStart = true;
-  }
-
-  onDragEndLoop() {
-    this.isDraggingEnd = true;
-  }
-  private getRelativePosition(mouseX: number): number {
-    const timelineRect = this.timeline.nativeElement.getBoundingClientRect();
-    return Math.max(0, Math.min(mouseX - timelineRect.left, this.timelineWidth));
-  }
  
 }
 

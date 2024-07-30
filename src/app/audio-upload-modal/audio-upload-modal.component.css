@@ -40,11 +40,17 @@ button[mat-button]:hover {
 }
 
 .icon-container:hover {
-  transform: scale(1.1); /* Slightly enlarges the icon on hover */
-  opacity: 0.8; /* Slightly fades the icon on hover */
+  transform: scale(1.1); 
+  
+  /* opacity: 0.8;  */
 }
 
 .icons {
-  width: 24px; /* Adjust as needed */
-  height: 24px; /* Adjust as needed */
+  width: 30px;
+  height: 30px; 
+  fill: #4CAF50;
+}
+.title{
+  background-color: #4CAF50 !important;
+  color: white !important;
 }
