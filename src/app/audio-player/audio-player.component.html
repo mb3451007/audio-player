@@ -1,3 +1,6 @@
+<div *ngIf="isLoading" class="overlay">
+  <div class="loader"></div>
+</div>
 <div class="audio-player-container">
   <div class="navbar">
     <button class="green-button" (click)="openUploadModal()">Upload</button>

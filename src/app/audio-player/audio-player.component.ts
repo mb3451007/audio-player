@@ -42,7 +42,7 @@ export class AudioPlayerComponent implements OnInit {
   baseUrl: string = 'http://localhost:3000/file';
   audioSource:string='https://30dsaaudio.s3.amazonaws.com/';
   
-  
+  isLoading: boolean = false;
   private audioKeys: string[] = [];
  
   audio: HTMLAudioElement = new Audio();
@@ -182,11 +182,10 @@ export class AudioPlayerComponent implements OnInit {
         if (result.type === 'file') {
           console.log(result.audioFile, 'this is file from modal');
           console.log(result.subtitleFile, 'this is file from modal');
-          
-           
-
+          this.isLoading = true;
           this.audioService.uploadFile(result.audioFile,result.subtitleFile)
             .then(() => {
+              this.isLoading = false;
               this.loadAudioList();
               console.log('audio File Src added to Aws Bucket successfully');
               
@@ -217,8 +216,6 @@ export class AudioPlayerComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       try {
-        // const audioUrl = await this.audioService.uploadFile(file);
-        // await this.audioService.uploadFile(file);
         console.log('File uploaded and metadata saved.');
       } catch (error) {
         console.error('Error uploading file:', error);
@@ -230,10 +227,10 @@ export class AudioPlayerComponent implements OnInit {
   }
 
   loadAudioList(): void {
+    this.isLoading = true;
     this.audioService.getAudios().subscribe((response: any) => {
       this.audioListOrignal = response;
       console.log(this.audioListOrignal, 'This is response data coming from backend');
-  
       this.audioList = response
       .filter((item: any) => item.Key.endsWith('.mp3') || item.Key.endsWith('.wav'))
       .map((item:any)=>{
@@ -246,6 +243,7 @@ export class AudioPlayerComponent implements OnInit {
             subtitleFileKey:  null 
           };
         });
+        this.isLoading = false;
         this.subtitleList=response
         .filter((item:any) => !item.Key.endsWith('.mp3') && !item.Key.endsWith('.wav')).map((item:any) =>{
           return{
@@ -264,6 +262,7 @@ export class AudioPlayerComponent implements OnInit {
   }
  
   playAudio(key: string,index: number) {
+    this.isLoading = true;
     console.log ('subtitle list o complete', this.subtitleList)
     this.stopAudio();
     // const index=this.audioList.findIndex(audio =>audio.key===key)
@@ -273,6 +272,7 @@ export class AudioPlayerComponent implements OnInit {
     this.currentTime=0;
     this.duration=0;
     this.audioService.loadAudioUrl(this.audioSource + key)
+    this.isLoading = false;
     this.togglePlayAudio()
   }
   playNextAudio() {
